@@ -122,4 +122,3 @@ settingsFrame.Visible = false
 
 UICornerSettingsFrame.Parent = settingsFrame
 UICornerSettingsFrame.CornerRadius = UDim.new(0, 10)
-
