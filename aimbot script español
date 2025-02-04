@@ -1,0 +1,132 @@
+-- Variables necesarias
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local camera = workspace.CurrentCamera
+
+local targetPlayer, highlight, isTargeting = nil, nil, false
+local rightClickAiming, rKeyAiming = true, true -- Ahora están separados
+local maxViewAngle, rotationSmoothness = 90, 0.1
+local notificationActive = false
+
+-- Función para mostrar notificación
+local function showNotification(message)
+    if notificationActive then return end
+    notificationActive = true
+    local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    local textLabel = Instance.new("TextLabel", screenGui)
+    textLabel.Text, textLabel.Size, textLabel.Position = message, UDim2.new(0, 250, 0, 50), UDim2.new(1, -260, 1, -60)
+    textLabel.BackgroundTransparency, textLabel.TextScaled, textLabel.TextColor3 = 0.3, true, Color3.fromRGB(255, 255, 255)
+    textLabel.BackgroundColor3, textLabel.BorderSizePixel = Color3.fromRGB(0, 0, 0), 0
+    Instance.new("UICorner", textLabel).CornerRadius = UDim.new(0, 10)
+    task.wait(3)
+    screenGui:Destroy()
+    notificationActive = false
+end
+
+showNotification("Aimbot en funcionamiento")
+
+-- Función para encontrar el personaje más cercano
+local function getClosestCharacter(targetPart)
+    local closestCharacter, closestDistance = nil, math.huge
+    for _, model in pairs(workspace:GetDescendants()) do
+        if model:IsA("Model") and model:FindFirstChild("HumanoidRootPart") and model ~= player.Character then
+            local humanoid = model:FindFirstChildOfClass("Humanoid")
+            local part = model:FindFirstChild(targetPart) or model:FindFirstChild("HumanoidRootPart")
+            if humanoid and humanoid.Health > 0 and part then
+                local distance = (part.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                local angle = math.deg(math.acos((part.Position - camera.CFrame.Position).Unit:Dot(camera.CFrame.LookVector)))
+                if distance < closestDistance and angle <= maxViewAngle then
+                    closestDistance, closestCharacter = distance, model
+                end
+            end
+        end
+    end
+    return closestCharacter
+end
+
+-- Función para suavizar la rotación de la cámara
+local function smoothAim(targetCharacter, targetPart)
+    if targetCharacter and targetCharacter:FindFirstChild(targetPart) then
+        local part = targetCharacter[targetPart]
+        local direction = (part.Position - camera.CFrame.Position).Unit
+        local targetCFrame = CFrame.new(camera.CFrame.Position, part.Position)
+        camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + direction:Lerp(targetCFrame.LookVector, rotationSmoothness))
+    end
+end
+
+-- Alternar contorno de objetivo
+local function toggleHighlight()
+    if highlight then
+        highlight:Destroy()
+        highlight = nil
+    elseif targetPlayer then
+        highlight = Instance.new("Highlight", targetPlayer)
+        highlight.FillColor, highlight.OutlineColor = Color3.new(0, 1, 0), Color3.new(0, 1, 0)
+        highlight.FillTransparency, highlight.OutlineTransparency = 1, 0
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    else
+        showNotification("No hay objetivo seleccionado")
+    end
+end
+
+-- Control de apuntado
+RunService.RenderStepped:Connect(function()
+    if isTargeting and targetPlayer then
+        local humanoid = targetPlayer:FindFirstChildOfClass("Humanoid")
+        if not targetPlayer.Parent or not humanoid or humanoid.Health <= 0 then
+            isTargeting, targetPlayer = false, nil
+            if highlight then highlight:Destroy() highlight = nil end
+            return
+        end
+        smoothAim(targetPlayer, "HumanoidRootPart")
+    end
+end)
+
+-- Eventos de teclado
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+
+    -- F2: Alternar apuntado con clic derecho
+    if input.KeyCode == Enum.KeyCode.F2 then
+        rightClickAiming = not rightClickAiming
+        showNotification(rightClickAiming and "Apuntado con clic derecho activado" or "Apuntado con clic derecho desactivado")
+
+    -- F3: Alternar apuntado con tecla R
+    elseif input.KeyCode == Enum.KeyCode.F3 then
+        rKeyAiming = not rKeyAiming
+        showNotification(rKeyAiming and "Apuntado con tecla R activado" or "Apuntado con tecla R desactivado")
+
+    -- R: Seleccionar objetivo si el apuntado con tecla R está activado
+    elseif input.KeyCode == Enum.KeyCode.R and rKeyAiming then
+        if isTargeting then
+            isTargeting, targetPlayer = false, nil
+            if highlight then highlight:Destroy() highlight = nil end
+        else
+            targetPlayer = getClosestCharacter("HumanoidRootPart")
+            isTargeting = targetPlayer ~= nil
+        end
+
+    -- T: Alternar contorno de objetivo
+    elseif input.KeyCode == Enum.KeyCode.T then
+        toggleHighlight()
+    end
+end)
+
+-- Apuntado con clic derecho
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton2 and rightClickAiming then
+        targetPlayer = getClosestCharacter("Head")
+        isTargeting = targetPlayer ~= nil
+    end
+end)
+
+-- Desactivar apuntado al soltar clic derecho
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        isTargeting, targetPlayer = false, nil
+        if highlight then highlight:Destroy() highlight = nil end
+    end
+end)
