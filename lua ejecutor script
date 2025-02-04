@@ -1,6 +1,13 @@
 local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+
 local player = Players.LocalPlayer
+
+-- Crear GUI
 local gui = Instance.new("ScreenGui")
+gui.Parent = CoreGui  -- Se almacena en CoreGui para que no se borre al respawnear
+gui.Name = "EjecutorScript"
+
 local frame = Instance.new("Frame")
 local titleBar = Instance.new("Frame")
 local textBox = Instance.new("TextBox")
@@ -9,6 +16,7 @@ local closeButton = Instance.new("TextButton")
 local minimizeButton = Instance.new("TextButton")
 local settingsButton = Instance.new("TextButton")
 local settingsFrame = Instance.new("Frame")
+
 local UICornerFrame = Instance.new("UICorner")
 local UICornerTitleBar = Instance.new("UICorner")
 local UICornerTextBox = Instance.new("UICorner")
@@ -17,11 +25,11 @@ local UICornerCloseButton = Instance.new("UICorner")
 local UICornerMinimizeButton = Instance.new("UICorner")
 local UICornerSettingsButton = Instance.new("UICorner")
 local UICornerSettingsFrame = Instance.new("UICorner")
+
 local isMinimized = false
 local isSettingsOpen = false
 
--- Propiedades de la GUI
-gui.Parent = player:WaitForChild("PlayerGui")
+-- Configuración de la GUI
 frame.Parent = gui
 frame.Size = UDim2.new(0, 400, 0, 250)
 frame.Position = UDim2.new(0.5, -200, 0.5, -125)
@@ -30,36 +38,15 @@ frame.BorderSizePixel = 2
 frame.Draggable = true
 frame.Active = true
 
--- Esquinas redondeadas para todos los elementos
 UICornerFrame.Parent = frame
 UICornerFrame.CornerRadius = UDim.new(0, 10)
 
-UICornerTitleBar.Parent = titleBar
-UICornerTitleBar.CornerRadius = UDim.new(0, 10)
-
-UICornerTextBox.Parent = textBox
-UICornerTextBox.CornerRadius = UDim.new(0, 10)
-
-UICornerExecuteButton.Parent = executeButton
-UICornerExecuteButton.CornerRadius = UDim.new(0, 10)
-
-UICornerCloseButton.Parent = closeButton
-UICornerCloseButton.CornerRadius = UDim.new(0, 10)
-
-UICornerMinimizeButton.Parent = minimizeButton
-UICornerMinimizeButton.CornerRadius = UDim.new(0, 10)
-
-UICornerSettingsButton.Parent = settingsButton
-UICornerSettingsButton.CornerRadius = UDim.new(0, 10)
-
-UICornerSettingsFrame.Parent = settingsFrame
-UICornerSettingsFrame.CornerRadius = UDim.new(0, 10)
-
--- Barra de título
 titleBar.Parent = frame
 titleBar.Size = UDim2.new(1, 0, 0, 25)
-titleBar.Position = UDim2.new(0, 0, 0, 0)
 titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+
+UICornerTitleBar.Parent = titleBar
+UICornerTitleBar.CornerRadius = UDim.new(0, 10)
 
 textBox.Parent = frame
 textBox.Size = UDim2.new(1, -20, 0.7, -30)
@@ -71,6 +58,9 @@ textBox.MultiLine = true
 textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 
+UICornerTextBox.Parent = textBox
+UICornerTextBox.CornerRadius = UDim.new(0, 10)
+
 executeButton.Parent = frame
 executeButton.Size = UDim2.new(1, -20, 0.2, -10)
 executeButton.Position = UDim2.new(0, 10, 0.8, 0)
@@ -78,7 +68,9 @@ executeButton.Text = "Ejecutar"
 executeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
 executeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- Botón de cerrar
+UICornerExecuteButton.Parent = executeButton
+UICornerExecuteButton.CornerRadius = UDim.new(0, 10)
+
 closeButton.Parent = titleBar
 closeButton.Size = UDim2.new(0, 40, 0, 20)
 closeButton.Position = UDim2.new(1, -45, 0, 2)
@@ -89,7 +81,9 @@ closeButton.MouseButton1Click:Connect(function()
     gui:Destroy()
 end)
 
--- Botón de minimizar
+UICornerCloseButton.Parent = closeButton
+UICornerCloseButton.CornerRadius = UDim.new(0, 10)
+
 minimizeButton.Parent = titleBar
 minimizeButton.Size = UDim2.new(0, 40, 0, 20)
 minimizeButton.Position = UDim2.new(1, -90, 0, 2)
@@ -103,7 +97,9 @@ minimizeButton.MouseButton1Click:Connect(function()
     executeButton.Visible = not isMinimized
 end)
 
--- Botón de configuración
+UICornerMinimizeButton.Parent = minimizeButton
+UICornerMinimizeButton.CornerRadius = UDim.new(0, 10)
+
 settingsButton.Parent = titleBar
 settingsButton.Size = UDim2.new(0, 40, 0, 20)
 settingsButton.Position = UDim2.new(1, -135, 0, 2)
@@ -115,9 +111,15 @@ settingsButton.MouseButton1Click:Connect(function()
     settingsFrame.Visible = isSettingsOpen
 end)
 
--- Ventana de configuración
+UICornerSettingsButton.Parent = settingsButton
+UICornerSettingsButton.CornerRadius = UDim.new(0, 10)
+
 settingsFrame.Parent = frame
 settingsFrame.Size = UDim2.new(0, 200, 0, 150)
 settingsFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
 settingsFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 settingsFrame.Visible = false
+
+UICornerSettingsFrame.Parent = settingsFrame
+UICornerSettingsFrame.CornerRadius = UDim.new(0, 10)
+
